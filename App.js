@@ -1,26 +1,72 @@
+import { useState } from "react";
+import { Button, StyleSheet, View, FlatList } from "react-native-web";
+import GoalItem from "./components/GoalItem";
+import GoalInput from "./components/GoalInput";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
-import { Button } from "react-native-web";
 
 export default function App() {
+  const [showModal, setShowModal] = useState(false);
+  const [courseGoals, setCourseGoals] = useState([]);
+
+  const addGoalHandler = (enteredGoalText) => {
+    setCourseGoals((currentState) => [
+      ...currentState,
+      { text: enteredGoalText, id: Math.random().toString() },
+    ]);
+  };
+
+  const endGoalHandler = () => {
+    setShowModal(false);
+  };
+
+  const deleteGoalHandler = (id) => {
+    setCourseGoals((oldState) => oldState.filter((ele) => ele.id !== id));
+  };
+
   return (
-    <View style={styles.container}>
-      <Text>Hello</Text>
-      <Text
-        style={{ margin: 16, borderWidth: 1, borderColor: "red", padding: 16 }}
-      >
-        World
-      </Text>
-      <Button title="IOS Button" />
-    </View>
+    <>
+      <StatusBar style="light" />
+      <View style={styles.appContainer}>
+        <Button
+          title="add new goal"
+          color="#5e0acc"
+          onPress={() => {
+            setShowModal(!showModal);
+          }}
+        />
+        <GoalInput
+          onAddGoal={addGoalHandler}
+          visible={showModal}
+          close={endGoalHandler}
+        />
+        <View style={styles.goalsContainer}>
+          <FlatList
+            data={courseGoals}
+            renderItem={(itemData) => (
+              <GoalItem
+                text={itemData.item.text}
+                id={itemData.item.id}
+                onDeleteItem={deleteGoalHandler}
+              />
+            )}
+            keyExtractor={(item, index) => {
+              return item.id;
+            }}
+          />
+        </View>
+      </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  appContainer: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
+    padding: 50,
+    paddingHorizontal: 16,
+  },
+
+  goalsContainer: {
+    flex: 5,
   },
 });
